@@ -1,0 +1,55 @@
+version: '3'
+
+services:
+  wordpress:
+    build: ./srcs/requirements/wordpress/ # Construit l'image WordPress à partir du Dockerfile spécifié
+    container_name: wordpress
+    restart: always
+    ports:
+      - "9000:9000" # Expose WordPress sur port 9000
+    volumes:
+        - wordpress_data:/var/www/html # Persiste les fichiers WordPress
+    env_file: .env # Charge variables d'env pour WordPress
+    networks: [app-network]
+    depends_on: [mariadb] # Dépend de MariaDB pour la base de données
+
+  mariadb:
+    build: ./srcs/requirements/mariadb/
+    container_name: mariadb
+    restart: always
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql # base de données MariaDB constante
+    env_file: .env
+    networks: [app-network]
+
+  nginx:
+    build: ./srcs/requirements/nginx/
+    container_name: nginx
+    restart: always
+    volumes:
+      - wordpress_data:/var/www/html # Permet NGINX accéder fichiers WordPress
+      - ./srcs/requirements/nginx/config/nginx.conf:/etc/nginx/conf/nginx.conf # Utilise conf NGINX personnalisée
+    ports:
+      - "443:443" # HTTPS
+    networks: [app-network]
+    depends_on: [wordpress] 
+
+networks:
+  app-network:
+    driver: bridge # Crée un réseau Docker pour comm inter docker
+
+volumes:
+  wordpress_data: # Volume pour les fichiers WordPress
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/nmuminov/data/wordpress
+  db_data: # Volume pour la base de données MariaDB
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/nmuminov/data/db_data
