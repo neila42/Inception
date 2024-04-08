@@ -36,3 +36,4 @@ everything-reset:
 	docker network rm $(shell docker network ls -q) || true
 	docker rmi $(shell docker images -q) || true
 	docker system prune -a --volumes || true
+
