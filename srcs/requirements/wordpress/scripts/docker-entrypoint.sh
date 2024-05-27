@@ -21,6 +21,7 @@ if ! wp core is-installed --path=/var/www/html --quiet; then
 fi
 
 chown -R www-data:www-data wp-content/uploads
+
 wp plugin install wordpress-importer --activate
 wp import /usr/local/bin/inception.xml --authors=create
 wp theme install twentytwentytwo --activate
