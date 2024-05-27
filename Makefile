@@ -2,13 +2,13 @@ up:
 	sudo mkdir -p /home/$(USER)/data
 	sudo mkdir -p /home/$(USER)/data/wordpress
 	sudo mkdir -p /home/$(USER)/data/db_data
-	cd ./srcs && docker-compose up -d
+	cd srcs && docker-compose up -d
 
 down:
-	cd ./srcs && docker-compose down
+	cd srcs && docker-compose down
 
 rebuild:
-	cd ./srcs && docker-compose up -d --build
+	cd srcs && docker-compose up -d --build
 
 wp-shell:
 	docker exec -it wordpress /bin/sh
