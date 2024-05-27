@@ -2,7 +2,7 @@ version: '3'
 
 services:
   wordpress:
-    build: ./srcs/requirements/wordpress/ # Construit l'image WordPress à partir du Dockerfile spécifié
+    build: ./requirements/wordpress/ # Construit l'image WordPress à partir du Dockerfile spécifié
     container_name: wordpress
     restart: always
     ports:
@@ -14,7 +14,7 @@ services:
     depends_on: [mariadb] # Dépend de MariaDB pour la base de données
 
   mariadb:
-    build: ./srcs/requirements/mariadb/
+    build: ./requirements/mariadb/
     container_name: mariadb
     restart: always
     ports:
@@ -25,12 +25,12 @@ services:
     networks: [app-network]
 
   nginx:
-    build: ./srcs/requirements/nginx/
+    build: ./requirements/nginx/
     container_name: nginx
     restart: always
     volumes:
       - wordpress_data:/var/www/html # Permet NGINX accéder fichiers WordPress
-      - ./srcs/requirements/nginx/config/nginx.conf:/etc/nginx/conf/nginx.conf # Utilise conf NGINX personnalisée
+      - ./requirements/nginx/config/nginx.conf:/etc/nginx/conf/nginx.conf # Utilise conf NGINX personnalisée
     ports:
       - "443:443" # HTTPS
     networks: [app-network]
