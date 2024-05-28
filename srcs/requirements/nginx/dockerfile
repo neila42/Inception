@@ -15,7 +15,7 @@ RUN mkdir -p /etc/nginx/ssl && \
     openssl req -newkey rsa:4096 -x509 -sha256 -days 365 -nodes \
     -out /etc/nginx/ssl/certificate.crt \
     -keyout /etc/nginx/ssl/private.key \
-    -subj "/C=CH/ST=Lausanne/L=Lausanne/O=MyCompany/OU=MyUnit/CN=mydomain.com"
+    -subj "/CN=nmuminov.42.fr"
 
 # Make setup script executable
 RUN chmod +x /setup_nginx.sh
