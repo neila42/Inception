@@ -1,7 +1,7 @@
 up:
-	sudo mkdir -p /Users/$(USER)/data
-	sudo mkdir -p /Users/$(USER)/data/wordpress
-	sudo mkdir -p /Users/$(USER)/data/db_data
+	sudo mkdir -p /home/$(USER)/data
+	sudo mkdir -p /home/$(USER)/data/wordpress
+	sudo mkdir -p /home/$(USER)/data/db_data
 	cd ./srcs && docker-compose up -d
 
 down:

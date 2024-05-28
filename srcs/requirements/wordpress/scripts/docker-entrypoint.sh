@@ -14,11 +14,11 @@ install_wordpress() {
     if ! wp core is-installed --path=/var/www/html --quiet; then
         echo "Installing WordPress..."
         wp core install \
-            --url="https://mydomain.com" \
+            --url="https://nmuminov.com" \
             --title="MyProject" \
-            --admin_user="admin" \
-            --admin_password="admin_password" \
-            --admin_email="admin@example.com" \
+            --admin_user="neila" \
+            --admin_password="123" \
+            --admin_email="neila@example.com" \
             --path=/var/www/html \
             --skip-email
     fi
