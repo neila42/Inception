@@ -1,44 +1,54 @@
 #!/bin/sh
 
-# Verify if MariaDB has been initialized
-if [ ! -d "/var/lib/mysql/mysql" ]; then
-    echo "Setting up MariaDB data directory..."
+# Function to check if MariaDB is ready
+check_mariadb_ready() {
+    i=0
+    while [ $i -lt 30 ]; do
+        if mysqladmin ping --socket=/var/run/mysqld/mysqld.sock --silent; then
+            echo "MariaDB is ready."
+            return 0
+        fi
+        i=$((i+1))
+        sleep 1
+    done
+    echo >&2 'MariaDB init process failed.'
+    exit 1
+}
+
+initialize_mariadb() {
+    echo "Initializing MariaDB Data Directory..."
     mysql_install_db --user=mysql --ldata=/var/lib/mysql
 
-    echo "Starting MariaDB for initial setup..."
+    echo "Starting MariaDB..."
     mysqld_safe --user=mysql --skip-networking --socket=/var/run/mysqld/mysqld.sock &
     pid=$!
 
-    echo "Waiting for MariaDB to become available..."
-    for i in {1..30}; do
-        if mysqladmin ping --socket=/var/run/mysqld/mysqld.sock --silent; then
-            echo "MariaDB is now available."
-            break
-        fi
-        sleep 1
-    done
+    echo "Waiting for MariaDB to be ready..."
+    check_mariadb_ready
 
-    if [ $i -eq 31 ]; then
-        echo >&2 'MariaDB initialization process failed.'
-        exit 1
+    # Execute scripts
+    echo "Running initialization scripts..."
+    if [ -d /docker-entrypoint-initdb.d/ ]; then
+        for script in /docker-entrypoint-initdb.d/*; do
+            case "$script" in
+                *.sh) echo "Running $script"; sh "$script" ;;
+                *.sql) echo "Running $script"; mysql --socket=/var/run/mysqld/mysqld.sock < "$script" ;;
+                *) echo "Ignoring $script" ;;
+            esac
+        done
     fi
+    mysql --socket=/var/run/mysqld/mysqld.sock < /docker-entrypoint-initdb.d/setup.sql
 
-    echo "Executing initialization scripts..."
-    for script in /docker-entrypoint-initdb.d/*; do
-        case "$script" in
-            *.sh)  echo "Running script $script"; . "$script" ;;
-            *.sql) echo "Running SQL file $script"; mysql --socket=/var/run/mysqld/mysqld.sock < "$script" ;;
-            *)     echo "Ignoring $script" ;;
-        esac
-    done
+    # Shut down the temporary instance
+    echo "Shutting down MariaDB..."
+    mysqladmin --socket=/var/run/mysqld/mysqld.sock -u root shutdown
+}
 
-    echo "Stopping MariaDB after initialization..."
-    if ! mysqladmin --socket=/var/run/mysqld/mysqld.sock -u root shutdown; then
-        echo >&2 "Unable to properly shut down MariaDB."
-        exit 1
-    fi
+# Main script execution
+if [ ! -d "/var/lib/mysql/mysql" ]; then
+    initialize_mariadb
 else
-    echo "MariaDB data directory already set up."
+    echo "MariaDB Data Directory already initialized."
 fi
 
 echo "Starting MariaDB server..."

@@ -1,5 +1,15 @@
 #!/bin/sh
 
-mkdir -p /etc/nginx/ssl
+# Create SSL directory
+setup_ssl() {
+    mkdir -p /etc/nginx/ssl
+}
 
-nginx -g 'daemon off;'
+# Start Nginx in the foreground
+start_nginx() {
+    nginx -g 'daemon off;'
+}
+
+# Main script execution
+setup_ssl
+start_nginx

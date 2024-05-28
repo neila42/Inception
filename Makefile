@@ -1,40 +1,44 @@
 up:
-    @echo "Creating directories..."
-    sudo mkdir -p /home/$(USER)/data
-    sudo mkdir -p /home/$(USER)/data/wordpress
-    sudo mkdir -p /home/$(USER)/data/db_data
-    @echo "Changing directory to srcs and bringing up Docker Compose..."
-    cd srcs && docker-compose up -d
+	sudo mkdir -p /Users/$(USER)/data
+	sudo mkdir -p /Users/$(USER)/data/wordpress
+	sudo mkdir -p /Users/$(USER)/data/db_data
+	cd ./srcs && docker-compose up -d
 
 down:
-    cd srcs && docker-compose down
+	cd ./srcs && docker-compose down
 
 rebuild:
-    cd srcs && docker-compose up -d --build
+	cd ./srcs && docker-compose up -d --build
 
 wp-shell:
-    docker exec -it wordpress /bin/sh
+	docker exec -it wp_container /bin/sh
 
 db-shell:
-    docker exec -it mariadb /bin/sh
+	docker exec -it db_container /bin/sh
 
 nginx-shell:
-    docker exec -it nginx /bin/sh
+	docker exec -it nginx_container /bin/sh
 
 restart:
-    docker restart mariadb
-    docker restart nginx
-    docker restart wordpress
+	docker restart db_container
+	docker restart nginx_container
+	docker restart wp_container
 
 reset-docker:
-    docker stop $(shell docker ps -a -q) || true
-    docker rm mariadb nginx wordpress || true
-    docker system prune -af --volumes
+	docker stop $(docker ps -a -q) || true
+	docker rm db_container
+	docker rm nginx_container
+	docker rm wp_container
+	docker system prune -af --volumes
+	docker rm $(docker ps -a -q) || true
+	docker rmi $(docker images -q) || true
+	docker volume prune --force
+	docker volume rm srcs_db_data srcs_wordpress_data
 
-everything-reset:
-    docker stop $(shell docker ps -a -q) || true
-    docker rm $(shell docker ps -a -q) || true
-    docker volume rm $(shell docker volume ls -q) || true
-    docker network rm $(shell docker network ls -q) || true
-    docker rmi $(shell docker images -q) || true
-    docker system prune -a --volumes || true
+full-reset:
+	docker stop $(docker ps -a -q)
+	docker rm $(docker ps -a -q)
+	docker volume rm $(docker volume ls -q)
+	docker network rm $(docker network ls -q)
+	docker rmi $(docker images -q)
+	docker system prune -a --volumes
