@@ -34,7 +34,7 @@ chown -R www-data:www-data wp-content/uploads
 
 # Install and activate plugins and themes
 wp plugin install wordpress-importer --activate
-wp import /usr/local/bin/inception.xml --authors=create
+# wp import /usr/local/bin/inception.xml --authors=create
 wp theme install twentytwentytwo --activate
 
 # Start PHP-FPM
