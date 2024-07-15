@@ -1,0 +1,74 @@
+version: '3.8'
+
+services:
+  nginx:
+    container_name: nginx-container
+    image: nginx
+    build: 
+      context: ./stacks/nginx
+    volumes:
+      - wordpress:/var/www/html
+    ports:
+      - "443:443"
+    env_file: .env
+    restart: always
+    depends_on:
+      - wordpress
+    networks:
+      - wpnetwork
+
+  mariadb:
+    container_name: mariadb-container
+    image: mariadb
+    build:
+      context: ./stacks/mariadb
+      dockerfile: Dockerfile
+      args:
+        - MYSQL_DB=${MYSQL_DB}
+        - MYSQL_PASS=${MYSQL_PASS}
+        - MYSQL_USER=${MYSQL_USER}
+        - MYSQL_ROOT_PASS=${MYSQL_ROOT_PASS}
+    expose:
+      - "3306"
+    env_file: .env
+    volumes:
+      - mariadb:/var/lib/mysql
+    restart: always
+    networks:
+      - wpnetwork
+
+  wordpress:
+    container_name: wordpress-container
+    image: wordpress
+    build:
+      context: ./stacks/wordpress
+    expose:
+      - "9000"
+    restart: always
+    volumes:
+      - wordpress:/var/www/html
+    env_file: .env
+    depends_on:
+      - mariadb
+    networks:
+      - wpnetwork
+      
+networks:
+  wpnetwork:
+    driver: bridge
+
+volumes:
+  wordpress:
+    name: wordpress
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: ${VOLUME_PATH}/web
+  mariadb:
+    name: mariadb
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: ${VOLUME_PATH}/database
