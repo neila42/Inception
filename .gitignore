@@ -1,7 +1,4 @@
 # .gitignore
 
-# Exclude the .env file
-.env
-
 # Exclude macOS DS_Store files
 .DS_Store
